@@ -13,9 +13,9 @@ def _print_general_help() -> None:
     for name, spec in _OPTIONS.items():
         print(f"  {name} - {spec['about']}")
     print("Приклади")
-    print("  python script/processor.py")
-    print("  python script/processor.py help")
-    print("  python script/processor.py help help")
+    print("  python scripts/processor.py")
+    print("  python scripts/processor.py help")
+    print("  python scripts/processor.py help help")
 
 
 def _help_handler(args: List[str]) -> int:
@@ -38,7 +38,7 @@ def get_options() -> Dict[str, Dict[str, object]]:
     if "help" not in _OPTIONS:
         _OPTIONS["help"] = {
             "about": "Показує список доступних опцій та приклади використання",
-            "usage": "python script/processor.py help [<option>]",
+            "usage": "python scripts/processor.py help [<option>]",
             "handler": _help_handler,
         }
     return _OPTIONS
