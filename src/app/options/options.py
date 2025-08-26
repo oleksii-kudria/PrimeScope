@@ -31,6 +31,16 @@ def _help_handler(args: List[str]) -> int:
         spec = _OPTIONS[name]
         print(f"{name} - {spec['about']}")
         print(f"Використання: {spec['usage']}")
+        flags = spec.get("flags")
+        if flags:
+            print("\nПрапорці")
+            for flag, desc in flags:
+                print(f"  {flag:<24} {desc}")
+        examples = spec.get("examples")
+        if examples:
+            print("\nПриклади")
+            for desc, cmd in examples:
+                print(f"  {cmd}  # {desc}")
         return 0
     print(f"Невідома опція для help: {name}")
     _print_general_help()
@@ -63,6 +73,26 @@ def get_options() -> Dict[str, Dict[str, object]]:
         _OPTIONS["run"] = {
             "about": "Запускає повний цикл: collect → validate → normalize → interim → checks → report",
             "usage": "python scripts/processor.py run [опції]",
+            "flags": [
+                ("--from STEP", "почати з кроку (collect|validate|normalize|interim|checks|report)"),
+                ("--to STEP", "закінчити на кроці"),
+                ("--skip STEP[,STEP]", "пропустити вказані кроки"),
+                ("--dry-run", "лише показати план без запису файлів"),
+                ("--clean-first", "очистити data/interim перед запуском (окрім *.example.csv)"),
+                ("--yes", "автоматично підтверджувати потенційно руйнівні дії (для --clean-first)"),
+            ],
+            "examples": [
+                ("Повний цикл", "python3 scripts/processor.py run"),
+                ("Сухий прогін (без змін на диску)", "python3 scripts/processor.py run --dry-run"),
+                ("Очистити проміжні файли й запустити цикл", "python3 scripts/processor.py run --clean-first --yes"),
+                (
+                    "Запустити частину пайплайну (лише від normalize до report)",
+                    "python3 scripts/processor.py run --from normalize --to report",
+                ),
+                ("Пропустити додаткові перевірки", "python3 scripts/processor.py run --skip checks"),
+                ("Запустити тільки один крок (лише collect)", "python3 scripts/processor.py run --from collect --to collect"),
+                ("Пропустити кілька кроків", "python3 scripts/processor.py run --skip normalize,checks"),
+            ],
             "handler": _run_handler,
         }
     return _OPTIONS
