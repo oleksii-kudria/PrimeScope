@@ -5,16 +5,17 @@ from pathlib import Path
 
 
 def setup_logging(level: str = "INFO", log_file: str = "logs/pscope.log") -> None:
+    root = logging.getLogger()
+    if root.handlers:
+        return
+
     path = Path(log_file)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    root = logging.getLogger()
     root.setLevel(getattr(logging, level.upper(), logging.INFO))
 
     fmt = "[%(asctime)s] %(levelname)s: %(message)s"
     formatter = logging.Formatter(fmt)
-
-    root.handlers.clear()
 
     console = logging.StreamHandler()
     console.setFormatter(formatter)

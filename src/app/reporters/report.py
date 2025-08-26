@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+from app.pipeline.status import SKIPPED
+
 
 def run(**kwargs) -> int:
     """Run the report step."""
-    return 0
+    return SKIPPED
 
