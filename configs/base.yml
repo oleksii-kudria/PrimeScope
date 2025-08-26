@@ -2,4 +2,13 @@ paths:
   # Directory containing raw DHCP CSV files
   raw_dhcp: data/raw/dhcp
 
+collect:
+  input_dirs:
+    - data/raw/dhcp
+    - data/raw/arm
+    - data/raw/mkp
+    - data/raw/other
+    - data/raw/ubiq
+    - data/raw/siem
+
 
