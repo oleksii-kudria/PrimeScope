@@ -1,11 +1,15 @@
-from __future__ import annotations
+"""Definitions of processing flows for PrimeScope."""
 
-"""Definitions of processing flows."""
+# Default pipeline sequence.
+DEFAULT_FLOW = [
+    "collect",
+    "validate",
+    "normalize",
+    "interim",
+    "checks",
+    "report",
+]
 
-STEPS = ["collect", "normalize", "dedupe", "verify", "report"]
-
-DEFAULT_FLOW = STEPS
-
-# Placeholder for future custom flows
-EXAMPLE_FLOW = STEPS
+# Placeholder for future custom flows.
+EXAMPLE_FLOW = DEFAULT_FLOW
 
