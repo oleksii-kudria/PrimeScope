@@ -1,11 +1,10 @@
 arm:
-#  mac: "MAC"
-  mac: "staticMac"
+  mac: "Static MAC"
   hostname: "Hostname"
-  owner: "owner"
-  pc_type: "pcType"
+  owner: "Власник"
+  pc_type: "Тип ПК"
   ip: "IP"
-  randmac: "randomMac"
+  randmac: "Random MAC"
   ownership: "Власність"
 mkp:
   mac: "Статичний MAC"
@@ -14,32 +13,8 @@ mkp:
   mkp_type: "Тип МКП"
   randmac: "Динамічний MAC"
   category: "Категорія МКП"
-dhcp:
-  mac: "mac"
-  name: "name"
-  ip: "ip"
-  firstDate: "firstDate"
-  lastDate: "lastDate"
-  source: "source"
-validation:
-  ip: "ip"
-  mac: "mac"
-report:
-  ipmac: "ipmac"
-verified:
-  mac: "mac"
-report1:
-  source: "source"
-  verified: "verified"
-  type: "type"
-  name: "name"
-  ipmac: "ipmac"
-  note: "note"
-pending:
-  type: "type"
-  source: "source"
-  ip: "ip"
-  mac: "mac"
-  name: "name"
-  firstDate: "firstDate"
-  lastDate: "lastDate"
+siem:
+  logSourceIdentifier: "logSourceIdentifier"
+  sourcMACAddress: "sourcMACAddress"
+  payloadAsUTF: "payloadAsUTF"
+  deviceTime: "deviceTime"
