@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from app.pipeline.status import DONE
 from app.utils.logging import get_logger
 
 
@@ -61,7 +62,6 @@ def _load_input_dirs(config_path: Path) -> list[str]:
 
 def run(**kwargs) -> int:  # noqa: D401
     """Run the collect step."""
-    logger.info("▶ step=collect status=start")
     try:
         root = Path(__file__).resolve().parents[3]
         config_path = root / "configs" / "base.yml"
@@ -87,6 +87,5 @@ def run(**kwargs) -> int:  # noqa: D401
     except Exception as exc:  # pragma: no cover - minimal error handling
         logger.error("collect: unexpected error: %s", exc)
         return 1
-    logger.info("✓ step=collect status=done")
-    return 0
+    return DONE
 
