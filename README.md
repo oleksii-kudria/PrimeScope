@@ -14,6 +14,58 @@ python scripts/processor.py           # help
 python scripts/processor.py run       # повний цикл з новими кроками
 ```
 
+## CLI: опція run
+
+### Призначення
+Запуск повного циклу: `collect → validate → normalize → interim → checks → report`.
+
+### Використання
+```bash
+python3 scripts/processor.py run [опції]
+python scripts/processor.py run [опції]
+```
+
+### Прапорці
+- `--from STEP` — почати з кроку (допустимо: `collect|validate|normalize|interim|checks|report`)
+- `--to STEP` — закінчити на кроці
+- `--skip STEP[,STEP]` — пропустити вказані кроки
+- `--dry-run` — лише показати план без запису файлів
+- `--clean-first` — очистити `data/interim` перед запуском (окрім `*.example.csv`)
+- `--yes` — автоматично підтверджувати потенційно руйнівні дії (для `--clean-first`)
+
+### Приклади
+- Повний цикл:
+  ```bash
+  python3 scripts/processor.py run
+  ```
+- Сухий прогін (без змін на диску):
+  ```bash
+  python3 scripts/processor.py run --dry-run
+  ```
+- Очистити проміжні файли й запустити цикл:
+  ```bash
+  python3 scripts/processor.py run --clean-first --yes
+  ```
+- Запустити частину пайплайну (лише від `normalize` до `report`):
+  ```bash
+  python3 scripts/processor.py run --from normalize --to report
+  ```
+- Пропустити додаткові перевірки:
+  ```bash
+  python3 scripts/processor.py run --skip checks
+  ```
+- Запустити тільки один крок (лише `collect`):
+  ```bash
+  python3 scripts/processor.py run --from collect --to collect
+  ```
+- Пропустити кілька кроків:
+  ```bash
+  python3 scripts/processor.py run --skip normalize,checks
+  ```
+
+### Допустимі кроки
+`collect`, `validate`, `normalize`, `interim`, `checks`, `report`.
+
 ## Логування
 За замовчуванням повідомлення рівня INFO виводяться у консоль та у файл `logs/pscope.log`.
 
