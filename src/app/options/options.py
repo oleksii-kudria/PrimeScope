@@ -2,9 +2,13 @@ from __future__ import annotations
 
 from typing import Dict, List
 
+from app.utils.logging import get_logger
+
 
 # Global registry for option specifications
 _OPTIONS: Dict[str, Dict[str, object]] = {}
+
+logger = get_logger(__name__)
 
 
 def _print_general_help() -> None:
@@ -35,13 +39,16 @@ def _help_handler(args: List[str]) -> int:
 
 def _run_handler(args: List[str]) -> int:
     """Handler for the run option."""
+    logger.info("run: start")
     kwargs = {}
     for arg in args:
         if arg.startswith("--") and "=" in arg:
             key, value = arg[2:].split("=", 1)
             kwargs[key.replace("-", "_")] = value
     from app.pipeline import flows, runner
-    return runner.run_flow(flow=flows.DEFAULT_FLOW, **kwargs)
+    code = runner.run_flow(flow=flows.DEFAULT_FLOW, **kwargs)
+    logger.info("run: done")
+    return code
 
 
 def get_options() -> Dict[str, Dict[str, object]]:

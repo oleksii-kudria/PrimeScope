@@ -14,3 +14,16 @@ python scripts/processor.py           # help
 python scripts/processor.py run       # повний цикл з новими кроками
 ```
 
+## Логування
+За замовчуванням повідомлення рівня INFO виводяться у консоль та у файл `logs/pscope.log`.
+
+Приклад виводу під час `run`:
+```
+▶ step=collect status=start
+✓ step=collect status=done duration=0.241s
+▶ step=validate status=start
+✓ step=validate status=done duration=0.102s
+...
+run: done
+```
+
