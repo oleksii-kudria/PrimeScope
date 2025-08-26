@@ -9,9 +9,11 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from app.options.options import get_options
+from app.utils.logging import setup_logging
 
 
 def main(argv: List[str] | None = None) -> int:
+    setup_logging()
     if argv is None:
         argv = sys.argv[1:]
 
