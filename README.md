@@ -1,6 +1,6 @@
 # PrimeScope
 
-## CLI запуск (script/processor.py)
+## CLI запуск (scripts/processor.py)
 Єдиний вхід для керування опціями PrimeScope.
 Опції зберігаються у `src/app/options/options.py` через функцію `get_options()`.
 За замовчуванням запуск без аргументів викликає опцію `help`.
@@ -9,13 +9,13 @@
 ### Приклади
 ```
 # показати довідку
-python script/processor.py
+python scripts/processor.py
 
 # те саме явно
-python script/processor.py help
+python scripts/processor.py help
 
 # довідка по конкретній опції (демо з help)
-python script/processor.py help help
+python scripts/processor.py help help
 ```
 
 ### Коди завершення
@@ -25,4 +25,4 @@ python script/processor.py help help
 
 ### Розширення
 Щоб додати нову опцію, додайте запис у `get_options()` з полями `about`, `usage` та `handler`.
-Опції не прописуються у `script/processor.py`, тільки в `options.py`.
+Опції не прописуються у `scripts/processor.py`, тільки в `options.py`.
