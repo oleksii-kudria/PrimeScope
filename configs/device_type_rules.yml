@@ -1,0 +1,107 @@
+rules:
+  - type: arm
+    mode: prefix
+    patterns:
+      - "Acer-Nitro-"
+      - "Blanket-"
+      - "DESKTOP-"
+      - "DESKTOP_"
+      - "HPEliteBook"
+      - "LAPTOP-"
+      - "LAPTOP_"
+      - "Mac"
+      - "NB-A"
+      - "WIN-"
+      - "WIN_"
+      - "WINDOWS-"
+      - "WINDOWS_"
+
+  - type: arm
+    mode: contains
+    patterns:
+      - "TUF-Gaming"
+      - "-Komp"
+
+  - type: mkp
+    mode: prefix
+    patterns:
+      - "A24-"
+      - "A36-"
+      - "A51-"
+      - "A52-"
+      - "A53-"
+      - "A54-"
+      - "Apple iPad"
+      - "Apple iPhone"
+      - "Galaxy-"
+      - "HUAWEI_P_smart-"
+      - "iPhone"
+      - "Lenovo Tab"
+      - "M52-"
+      - "moto-"
+      - "Motorola Moto"
+      - "OnePlus-"
+      - "OPPO-"
+      - "Pixel-"
+      - "POCO-"
+      - "Realme-"
+      - "Redmi-"
+      - "S10-"
+      - "S20-"
+      - "S21-"
+      - "S22-"
+      - "S23-"
+      - "S24-"
+      - "S25-"
+      - "SM73GA5G"
+      - "Tab-"
+      - "TB330FU"
+      - "Xiaomi-"
+
+  - type: mkp
+    mode: contains
+    patterns:
+      - "21081111RG"
+      - "M2102J20SG"
+      - "Redmi9T"
+      - "RedmiNote"
+      - "Tab-S7"
+
+  - type: router
+    mode: regex
+    patterns:
+      - "^[gisy][0-9]{9}$"
+
+  - type: router
+    mode: contains
+    patterns:
+      - "Archer_C6"
+      - "Archer_C20"
+      - "ArcherA64"
+      - "ArcherAX10"
+      - "ArcherAX72"
+      - "Keenetic-"
+      - "MikroTik"
+
+  - type: watch
+    mode: contains
+    patterns:
+      - "Smartwatch"
+      - "Watch"
+
+  - type: printer
+    mode: prefix
+    patterns:
+      - "Canonfb5ba1"
+      - "EPSON6"
+
+  - type: tv
+    mode: prefix
+    patterns:
+      - "Hisense Vision"
+      - "Tv1x"
+
+default: unknown
+options:
+  case_insensitive: true
+  trim: true

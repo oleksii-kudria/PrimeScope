@@ -1,0 +1,5 @@
+paths:
+  # Directory containing raw DHCP CSV files
+  raw_dhcp: data/raw/dhcp
+
+
