@@ -10,7 +10,29 @@ validate:
       remove_bom: true                # прибрати BOM з першого заголовка
     stop_on_missing_required: true    # якщо бракує обов'язкових колонок — зупиняти пайплайн
     stop_on_content_error: true       # якщо вміст не проходить валідацію (наприклад, не-IP) — зупиняти
+    detect_confusables: true          # виявляти «схожі» символи у значеннях
 
+  confusables_map:
+    А: "A"    # U+0410 CYRILLIC CAPITAL A
+    а: "a"    # U+0430
+    В: "B"    # U+0412
+    Е: "E"    # U+0415
+    е: "e"    # U+0435
+    О: "O"    # U+041E
+    о: "o"    # U+043E
+    Р: "P"    # U+0420
+    р: "p"    # U+0440
+    С: "C"    # U+0421
+    с: "c"    # U+0441
+    Т: "T"    # U+0422
+    Х: "X"    # U+0425
+    х: "x"    # U+0445
+    ‐: "-"    # U+2010 HYPHEN
+    ‑: "-"    # U+2011 NON-BREAKING HYPHEN
+    –: "-"    # U+2013 EN DASH
+    —: "-"    # U+2014 EM DASH
+    ：: ":"    # U+FF1A FULLWIDTH COLON
+    ﹕: ":"    # U+FE55 SMALL COLON
   # Набір валідаторів, які можна призначати полям
   rules:
     ip:
