@@ -72,14 +72,8 @@ def run(**kwargs) -> int:  # noqa: D401
             if not dir_path.is_dir():
                 logger.info("collect: dir not found: %s", rel)
                 continue
-            files = list_csv_in_dir(str(dir_path))
-            if not files:
-                logger.info("collect: no csv in: %s", rel)
-            else:
-                names = [Path(p).name for p in files]
-                logger.info(
-                    "collect: files in %s: %s", rel, ", ".join(sorted(names))
-                )
+            # Inventory of CSV files handled in validate step
+            list_csv_in_dir(str(dir_path))
     except Exception as exc:  # pragma: no cover - minimal error handling
         logger.error("collect: unexpected error: %s", exc)
         return 1
