@@ -121,3 +121,7 @@ validate:
     ubiq:
       dir: "data/raw/ubiq"
       fields: { }   # порожньо → skipped
+
+    dhcp:
+      dir: "data/raw/ubiq"
+      fields: { }   # порожньо → skipped
