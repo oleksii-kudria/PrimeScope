@@ -21,53 +21,11 @@ DEFAULT_INPUT_DIRS = [
 logger = get_logger(__name__)
 
 
-def _load_input_dirs(config_path: Path) -> list[str]:
-    """Return list of input directories from config or defaults."""
-    dirs: list[str] | None = None
-    if config_path.exists():
-        text = config_path.read_text(encoding="utf-8")
-        try:
-            import yaml  # type: ignore
-
-            data = yaml.safe_load(text) or {}
-            collect = data.get("collect") or {}
-            cfg_dirs = collect.get("input_dirs")
-            if isinstance(cfg_dirs, list):
-                dirs = [str(d) for d in cfg_dirs]
-        except Exception:
-            dirs = None
-        if dirs is None:
-            temp_dirs: list[str] = []
-            in_collect = False
-            in_list = False
-            for line in text.splitlines():
-                stripped = line.strip()
-                if not stripped or stripped.startswith("#"):
-                    continue
-                if stripped.startswith("collect:"):
-                    in_collect = True
-                    in_list = False
-                    continue
-                if in_collect and stripped.startswith("input_dirs:"):
-                    in_list = True
-                    continue
-                if in_collect and in_list:
-                    if stripped.startswith("- "):
-                        temp_dirs.append(stripped[2:].strip())
-                    elif not stripped.startswith("#"):
-                        break
-            if temp_dirs:
-                dirs = temp_dirs
-    return dirs or DEFAULT_INPUT_DIRS
-
-
 def run(**kwargs) -> int:  # noqa: D401
     """Run the collect step."""
     try:
         root = Path(__file__).resolve().parents[3]
-        config_path = root / "configs" / "base.yml"
-        input_dirs = _load_input_dirs(config_path)
-        for rel in input_dirs:
+        for rel in DEFAULT_INPUT_DIRS:
             dir_path = root / rel
             if not dir_path.is_dir():
                 logger.info("collect: dir not found: %s", rel)
