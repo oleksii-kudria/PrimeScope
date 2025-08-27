@@ -18,7 +18,7 @@ validate:
       version: any    # any | v4 | v6
     mac:
       kind: mac       # приймаємо : або - або без розділювачів; регістр неважливий
-    mac_or_dash:
+    mac_or_literals:
       kind: mac
       allow_literals: ["-", "N/A"]
     nonempty:
@@ -37,7 +37,7 @@ validate:
       fields:
         mac:
           headers: ["Static MAC", "mac", "staticMac"]
-          check: mac_or_dash
+          check: mac_or_literals
           required: true
         hostname:
           headers: ["Hostname"]
@@ -57,7 +57,7 @@ validate:
           required: true
         randmac:
           headers: ["Random MAC", "randmac", "dynamic_mac"]
-          check: mac_or_dash
+          check: mac_or_literals
           required: false
         ownership:
           headers: ["Власність", "ownership"]
@@ -85,7 +85,7 @@ validate:
           required: true
         randmac:
           headers: ["Динамічний MAC", "Dynamic MAC", "randmac"]
-          check: mac_or_dash
+          check: mac_or_literals
           required: false
         category:
           headers: ["Категорія МКП", "category"]
