@@ -70,6 +70,33 @@ python scripts/processor.py run [опції]
 ### Допустимі кроки
 `validate`, `collect`, `normalize`, `interim`, `checks`, `report`.
 
+## validate.rules
+У `configs/schemas.yml` перелічені правила для кроку `validate`. Кожне правило
+може мати параметр `allow_literals` — список значень, які приймаються без
+перевірки формату. Наприклад, правило `mac_or_dash` дозволяє рядок `'-'` у
+полі з MAC-адресою:
+
+```yaml
+validate:
+  rules:
+    mac_or_dash:
+      kind: mac
+      allow_literals: ["-"]
+  datasets:
+    arm:
+      fields:
+        randmac:
+          headers: ["Random MAC","randmac","dynamic_mac"]
+          check: mac_or_dash
+          required: false
+    mkp:
+      fields:
+        randmac:
+          headers: ["Динамічний MAC","Dynamic MAC","randmac"]
+          check: mac_or_dash
+          required: false
+```
+
 ## Логування
 За замовчуванням повідомлення рівня INFO виводяться у консоль та у файл `logs/pscope.log`.
 

@@ -18,6 +18,9 @@ validate:
       version: any    # any | v4 | v6
     mac:
       kind: mac       # приймаємо : або - або без розділювачів; регістр неважливий
+    mac_or_dash:
+      kind: mac
+      allow_literals: ["-"]
     nonempty:
       kind: nonempty  # не порожнє значення
     hostname:
@@ -53,8 +56,8 @@ validate:
           check: ip
           required: true
         randmac:
-          headers: ["Random MAC", "randomMac"]
-          check: mac
+          headers: ["Random MAC", "randmac", "dynamic_mac"]
+          check: mac_or_dash
           required: false
         ownership:
           headers: ["Власність", "ownership"]
@@ -82,7 +85,7 @@ validate:
           required: true
         randmac:
           headers: ["Динамічний MAC", "Dynamic MAC", "randmac"]
-          check: mac
+          check: mac_or_dash
           required: false
         category:
           headers: ["Категорія МКП", "category"]

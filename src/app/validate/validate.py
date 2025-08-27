@@ -128,6 +128,9 @@ def _apply_rule(
     if kind == "mac":
         if not text:
             return f"empty_value:{canonical}" if required else None
+        allowed = set(rule.get("allow_literals", []) or [])
+        if text in allowed:
+            return None
         cleaned = text.replace(":", "").replace("-", "")
         if len(cleaned) != 12:
             return "invalid_mac"
