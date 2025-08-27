@@ -123,5 +123,5 @@ validate:
       fields: { }   # порожньо → skipped
 
     dhcp:
-      dir: "data/raw/ubiq"
+      dir: "data/raw/dhcp"
       fields: { }   # порожньо → skipped
