@@ -73,29 +73,32 @@ python scripts/processor.py run [опції]
 ## validate.rules
 У `configs/schemas.yml` перелічені правила для кроку `validate`. Кожне правило
 може мати параметр `allow_literals` — список значень, які приймаються без
-перевірки формату. Наприклад, правило `mac_or_literals` дозволяє рядки `'-'` та
-`'N/A'` у полі з MAC-адресою:
+перевірки формату. Наприклад, правило `ip_or_literals` дозволяє рядок
+`"N/A"` у полі з IP-адресою:
 
 ```yaml
 validate:
   rules:
-    mac_or_literals:
-      kind: mac
-      allow_literals: ["-", "N/A"]
+    ip_or_literals:
+      kind: ip
+      version: any
+      allow_literals: ["N/A"]
   datasets:
     arm:
       fields:
-        randmac:
-          headers: ["Random MAC","randmac","dynamic_mac"]
-          check: mac_or_literals
-          required: false
+        ip:
+          headers: ["IP","ip_address","ip-address"]
+          check: ip_or_literals
+          required: true
     mkp:
       fields:
-        randmac:
-          headers: ["Динамічний MAC","Dynamic MAC","randmac"]
-          check: mac_or_literals
+        ip:
+          headers: ["IP","ip_address","ip-address"]
+          check: ip_or_literals
           required: false
 ```
+
+Аналогічний підхід використовується для MAC через правило `mac_or_literals`.
 
 ## Логування
 За замовчуванням повідомлення рівня INFO виводяться у консоль та у файл `logs/pscope.log`.

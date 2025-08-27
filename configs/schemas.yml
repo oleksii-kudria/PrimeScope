@@ -16,6 +16,10 @@ validate:
     ip:
       kind: ip        # ipv4/ipv6/any — за замовч., дозволити будь-який
       version: any    # any | v4 | v6
+    ip_or_literals:
+      kind: ip
+      version: any         # any | v4 | v6 — за потреби можна звузити
+      allow_literals: ["N/A"]   # точні значення, що приймаються без IP-перевірки
     mac:
       kind: mac       # приймаємо : або - або без розділювачів; регістр неважливий
     mac_or_literals:
@@ -53,7 +57,7 @@ validate:
           required: true
         ip:
           headers: ["IP", "ip_address", "ip-address"]
-          check: ip
+          check: ip_or_literals
           required: true
         randmac:
           headers: ["Random MAC", "randmac", "dynamic_mac"]
@@ -93,7 +97,7 @@ validate:
           required: true
         ip:
           headers: ["IP", "ip_address", "ip-address"]
-          check: ip
+          check: ip_or_literals
           required: false  # якщо в MKP IP не завжди є — залишити false
 
     siem:
