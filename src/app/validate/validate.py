@@ -114,6 +114,10 @@ def _apply_rule(
     if kind == "ip":
         if not text:
             return f"empty_value:{canonical}" if required else None
+        # allow_literals: special placeholders that bypass IP validation
+        allowed = set(rule.get("allow_literals") or [])
+        if text in allowed:
+            return None
         try:
             ip_obj = ipaddress.ip_address(text)
         except ValueError:
