@@ -62,7 +62,16 @@ def run(**kwargs) -> int:
 
         # --- CSV inventory ---
         config_path = root / "configs" / "schemas.yml"
-        for rel in _load_dataset_dirs(config_path):
+        if not config_path.exists():
+            logger.error("validate: відсутній configs/schemas.yml")
+            return 1
+
+        dirs = _load_dataset_dirs(config_path)
+        if not dirs:
+            logger.error("validate: відсутній блок validate.datasets у configs/schemas.yml")
+            return 1
+
+        for rel in dirs:
             dir_path = root / rel
             files = list_csv_in_dir(
                 str(dir_path), ignore_suffixes=["example.csv"], recursive=False
