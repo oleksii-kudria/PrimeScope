@@ -71,15 +71,24 @@ def get_options() -> Dict[str, Dict[str, object]]:
         }
     if "run" not in _OPTIONS:
         _OPTIONS["run"] = {
-            "about": "Запускає повний цикл: collect → validate → normalize → interim → checks → report",
+            "about": "Запускає повний цикл: validate → collect → normalize → interim → checks → report",
             "usage": "python scripts/processor.py run [опції]",
             "flags": [
-                ("--from STEP", "почати з кроку (collect|validate|normalize|interim|checks|report)"),
+                (
+                    "--from STEP",
+                    "почати з кроку (validate|collect|normalize|interim|checks|report)",
+                ),
                 ("--to STEP", "закінчити на кроці"),
                 ("--skip STEP[,STEP]", "пропустити вказані кроки"),
                 ("--dry-run", "лише показати план без запису файлів"),
-                ("--clean-first", "очистити data/interim перед запуском (окрім *.example.csv)"),
-                ("--yes", "автоматично підтверджувати потенційно руйнівні дії (для --clean-first)"),
+                (
+                    "--clean-first",
+                    "очистити data/interim перед запуском (окрім *.example.csv)",
+                ),
+                (
+                    "--yes",
+                    "автоматично підтверджувати потенційно руйнівні дії (для --clean-first)",
+                ),
             ],
             "examples": [
                 ("Повний цикл", "python3 scripts/processor.py run"),

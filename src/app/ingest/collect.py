@@ -6,6 +6,7 @@ from pathlib import Path
 
 from app.pipeline.status import DONE
 from app.utils.logging import get_logger
+from app.collectors.files import list_csv_in_dir
 
 
 DEFAULT_INPUT_DIRS = [
@@ -71,18 +72,13 @@ def run(**kwargs) -> int:  # noqa: D401
             if not dir_path.is_dir():
                 logger.info("collect: dir not found: %s", rel)
                 continue
-            files = [
-                p.name
-                for p in dir_path.iterdir()
-                if p.is_file()
-                and p.suffix.lower() == ".csv"
-                and not p.name.lower().endswith("example.csv")
-            ]
+            files = list_csv_in_dir(str(dir_path))
             if not files:
                 logger.info("collect: no csv in: %s", rel)
             else:
+                names = [Path(p).name for p in files]
                 logger.info(
-                    "collect: files in %s: %s", rel, ", ".join(sorted(files))
+                    "collect: files in %s: %s", rel, ", ".join(sorted(names))
                 )
     except Exception as exc:  # pragma: no cover - minimal error handling
         logger.error("collect: unexpected error: %s", exc)

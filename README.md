@@ -1,12 +1,15 @@
 # PrimeScope
 
 ## Пайплайн (структура кроків)
-1. **collect** — відкриття сирих файлів з каталогу `raw`.
-2. **validate** — базова перевірка вмісту.
+1. **validate** — базова перевірка вмісту.
+2. **collect** — відкриття сирих файлів з каталогу `raw`.
 3. **normalize** — приведення даних до уніфікованого вигляду.
 4. **interim** — формування проміжних артефактів.
 5. **checks** — додаткові "ручні" перевірки.
 6. **report** — підготовка фінальних звітів.
+
+Кроки `validate` і `collect` використовують утиліти роботи з CSV з
+`src/app/collectors/files.py`.
 
 ## Запуск
 ```bash
@@ -17,7 +20,7 @@ python scripts/processor.py run       # повний цикл з новими к
 ## CLI: опція run
 
 ### Призначення
-Запуск повного циклу: `collect → validate → normalize → interim → checks → report`.
+Запуск повного циклу: `validate → collect → normalize → interim → checks → report`.
 
 ### Використання
 ```bash
@@ -26,7 +29,7 @@ python scripts/processor.py run [опції]
 ```
 
 ### Прапорці
-- `--from STEP` — почати з кроку (допустимо: `collect|validate|normalize|interim|checks|report`)
+- `--from STEP` — почати з кроку (допустимо: `validate|collect|normalize|interim|checks|report`)
 - `--to STEP` — закінчити на кроці
 - `--skip STEP[,STEP]` — пропустити вказані кроки
 - `--dry-run` — лише показати план без запису файлів
@@ -64,17 +67,17 @@ python scripts/processor.py run [опції]
   ```
 
 ### Допустимі кроки
-`collect`, `validate`, `normalize`, `interim`, `checks`, `report`.
+`validate`, `collect`, `normalize`, `interim`, `checks`, `report`.
 
 ## Логування
 За замовчуванням повідомлення рівня INFO виводяться у консоль та у файл `logs/pscope.log`.
 
 Приклад виводу під час `run`:
 ```
-▶ step=collect status=start
-✓ step=collect status=done duration=0.241s
 ▶ step=validate status=start
 ✓ step=validate status=done duration=0.102s
+▶ step=collect status=start
+✓ step=collect status=done duration=0.241s
 ...
 run: done
 ```

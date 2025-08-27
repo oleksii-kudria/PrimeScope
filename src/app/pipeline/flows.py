@@ -2,8 +2,8 @@
 
 # Default pipeline sequence.
 DEFAULT_FLOW = [
-    "collect",
     "validate",
+    "collect",
     "normalize",
     "interim",
     "checks",

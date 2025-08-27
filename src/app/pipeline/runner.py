@@ -11,8 +11,8 @@ from app.utils.logging import get_logger
 
 
 MODULES: Dict[str, str] = {
-    "collect": "app.ingest.collect",
     "validate": "app.validate.validate",
+    "collect": "app.ingest.collect",
     "normalize": "app.processors.normalize",
     "interim": "app.stage.interim",
     "checks": "app.quality.checks",
