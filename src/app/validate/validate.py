@@ -182,6 +182,8 @@ def run(**kwargs) -> int:
         settings = validate_cfg.get("settings") or {}
         rules_cfg = validate_cfg.get("rules") or {}
         datasets_cfg = validate_cfg.get("datasets") or {}
+        confusables_map = validate_cfg.get("confusables_map") or {}
+        detect_confusables = settings.get("detect_confusables", False)
 
         if not datasets_cfg:
             logger.error(
@@ -225,8 +227,10 @@ def run(**kwargs) -> int:
 
         missing_msgs: list[str] = []
         content_msgs: list[str] = []
+        confusable_msgs: list[str] = []
         files_with_missing: set[str] = set()
         files_with_content: set[str] = set()
+        files_with_confusables: set[str] = set()
 
         for ds_name, ds in datasets_cfg.items():
             fields_cfg = ds.get("fields") or {}
@@ -282,12 +286,31 @@ def run(**kwargs) -> int:
 
                 file_has_error = False
                 if found:
+                    allowed_mac_chars = set("0123456789abcdefABCDEF:- ")
                     for row_idx, row in enumerate(open_csv_rows(path), start=1):
                         for canonical, (real_header, col_idx) in found.items():
                             value = row[col_idx] if col_idx < len(row) else ""
                             info = field_defs[canonical]
                             rule_name = info["check"]
                             rule = rules.get(rule_name, {"kind": "any"})
+
+                            if detect_confusables and rule.get("kind") == "mac":
+                                for ch in value:
+                                    if ch not in allowed_mac_chars and ch in confusables_map:
+                                        file_has_error = True
+                                        sugg = confusables_map.get(ch, "")
+                                        msg = (
+                                            "validate: content error: "
+                                            f"{rel_path} @row={row_idx} field={canonical} "
+                                            f"code=confusable_char char='{ch}' U+{ord(ch):04X} "
+                                            f"suggest='{sugg}'"
+                                        )
+                                        logger.error(msg)
+                                        confusable_msgs.append(msg)
+                                        content_msgs.append(msg)
+                                        files_with_content.add(rel_path)
+                                        files_with_confusables.add(rel_path)
+
                             err = _apply_rule(
                                 value, rule, info["required"], canonical, rule_name
                             )
@@ -306,8 +329,8 @@ def run(**kwargs) -> int:
 
         total_issues = len(missing_msgs) + len(content_msgs)
         logger.info(
-            "validate: errors summary: files_with_missing=%d, files_with_content_errors=%d, total_issues=%d",
-            len(files_with_missing),
+            "validate: errors summary: files_with_confusables=%d, files_with_content_errors=%d, total_issues=%d",
+            len(files_with_confusables),
             len(files_with_content),
             total_issues,
         )
