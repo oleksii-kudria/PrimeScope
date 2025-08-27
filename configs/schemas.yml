@@ -1,20 +1,123 @@
-arm:
-  mac: "Static MAC"
-  hostname: "Hostname"
-  owner: "Власник"
-  pc_type: "Тип ПК"
-  ip: "IP"
-  randmac: "Random MAC"
-  ownership: "Власність"
-mkp:
-  mac: "Статичний MAC"
-  model: "Модель"
-  owner: "Відповідальний"
-  mkp_type: "Тип МКП"
-  randmac: "Динамічний MAC"
-  category: "Категорія МКП"
-siem:
-  logSourceIdentifier: "logSourceIdentifier"
-  sourcMACAddress: "sourcMACAddress"
-  payloadAsUTF: "payloadAsUTF"
-  deviceTime: "deviceTime"
+validate:
+  # Загальні правила для парсингу заголовків і файлів
+  settings:
+    file_glob: "*.csv"                # маска файлів у каталозі
+    ignore_suffixes: ["example.csv"]  # ігнорувати файли, що закінчуються на example.csv
+    normalize_headers:                # як зрівнювати заголовки
+      casefold: true                  # нечутливість до регістру
+      trim: true                      # обрізати пробіли по краях
+      collapse_spaces: true           # звести повторні/нестандартні пробіли до 1 пробілу
+      remove_bom: true                # прибрати BOM з першого заголовка
+    stop_on_missing_required: true    # якщо бракує обов'язкових колонок — зупиняти пайплайн
+    stop_on_content_error: true       # якщо вміст не проходить валідацію (наприклад, не-IP) — зупиняти
+
+  # Набір валідаторів, які можна призначати полям
+  rules:
+    ip:
+      kind: ip        # ipv4/ipv6/any — за замовч., дозволити будь-який
+      version: any    # any | v4 | v6
+    mac:
+      kind: mac       # приймаємо : або - або без розділювачів; регістр неважливий
+    nonempty:
+      kind: nonempty  # не порожнє значення
+    hostname:
+      kind: regex
+      pattern: "^[A-Za-z0-9.-]{1,63}$"
+    any:
+      kind: any       # без перевірок вмісту (допустимо порожнє)
+
+  # Опис датасетів: прив'язка до директорій і полів
+  datasets:
+
+    arm:
+      dir: "data/raw/arm"
+      fields:
+        mac:
+          headers: ["Static MAC", "mac", "staticMac"]
+          check: mac
+          required: true
+        hostname:
+          headers: ["Hostname"]
+          check: hostname
+          required: true
+        owner:
+          headers: ["Власник", "owner"]
+          check: nonempty
+          required: true
+        pc_type:
+          headers: ["Тип ПК", "pc_type"]
+          check: any
+          required: true
+        ip:
+          headers: ["IP", "ip_address", "ip-address"]
+          check: ip
+          required: true
+        randmac:
+          headers: ["Random MAC", "randomMac"]
+          check: mac
+          required: false
+        ownership:
+          headers: ["Власність", "ownership"]
+          check: any
+          required: true
+
+    mkp:
+      dir: "data/raw/mkp"
+      fields:
+        mac:
+          headers: ["Статичний MAC", "Static MAC", "saticMac"]
+          check: mac
+          required: true
+        model:
+          headers: ["Модель", "model"]
+          check: nonempty
+          required: true
+        owner:
+          headers: ["Відповідальний", "owner"]
+          check: nonempty
+          required: true
+        mkp_type:
+          headers: ["Тип МКП", "mkp_type"]
+          check: any
+          required: true
+        randmac:
+          headers: ["Динамічний MAC", "Dynamic MAC", "randmac"]
+          check: mac
+          required: false
+        category:
+          headers: ["Категорія МКП", "category"]
+          check: any
+          required: true
+        ip:
+          headers: ["IP", "ip_address", "ip-address"]
+          check: ip
+          required: false  # якщо в MKP IP не завжди є — залишити false
+
+    siem:
+      dir: "data/raw/siem"
+      fields:
+        logSourceIdentifier:
+          headers: ["logSourceIdentifier"]
+          check: ip
+          required: true
+        sourcMACAddress:
+          headers: ["sourcMACAddress"]
+          check: mac
+          required: true
+        payloadAsUTF:
+          headers: ["payloadAsUTF"]
+          check: nonempty
+          required: true
+        deviceTime:
+          headers: ["deviceTime"]
+          check: nonempty
+          required: true
+
+    # Поки що для цих директорій schema відсутня — validate має їх пропускати
+    other:
+      dir: "data/raw/other"
+      fields: { }   # порожньо → крок validate позначає як skipped
+
+    ubiq:
+      dir: "data/raw/ubiq"
+      fields: { }   # порожньо → skipped
