@@ -20,7 +20,7 @@ validate:
       kind: mac       # приймаємо : або - або без розділювачів; регістр неважливий
     mac_or_dash:
       kind: mac
-      allow_literals: ["-"]
+      allow_literals: ["-", "N/A"]
     nonempty:
       kind: nonempty  # не порожнє значення
     hostname:
@@ -37,7 +37,7 @@ validate:
       fields:
         mac:
           headers: ["Static MAC", "mac", "staticMac"]
-          check: mac
+          check: mac_or_dash
           required: true
         hostname:
           headers: ["Hostname"]
