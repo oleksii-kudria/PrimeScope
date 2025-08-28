@@ -100,7 +100,7 @@ validate:
           headers: ["Static MAC", "mac", "staticMac"]
           check: mac_or_literals
           required: true
-        hostname:
+        name:
           headers: ["Hostname"]
           check: hostname
           required: true
@@ -108,7 +108,7 @@ validate:
           headers: ["Власник", "owner"]
           check: nonempty
           required: true
-        pc_type:
+        type:
           headers: ["Тип ПК", "pc_type"]
           check: any
           required: true
@@ -132,7 +132,7 @@ validate:
           headers: ["Статичний MAC", "Static MAC", "saticMac"]
           check: mac
           required: true
-        model:
+        name:
           headers: ["Модель", "model"]
           check: nonempty
           required: true
@@ -140,7 +140,7 @@ validate:
           headers: ["Відповідальний", "owner"]
           check: nonempty
           required: true
-        mkp_type:
+        type:
           headers: ["Тип МКП", "mkp_type"]
           check: any
           required: true
@@ -148,16 +148,32 @@ validate:
           headers: ["Динамічний MAC", "Dynamic MAC", "randmac"]
           check: mac_or_literals
           required: false
-        category:
-          headers: ["Категорія МКП", "category"]
+        ownership:
+          headers: ["Категорія МКП", "category", "ownership"]
           check: any
           required: true
         ip:
           headers: ["IP", "ip_address", "ip-address"]
           check: ip_or_literals
-          required: false  # якщо в MKP IP не завжди є — залишити false
+          required: false
 
     # Поки що для цих директорій schema відсутня — validate має їх пропускати
     other:
       dir: "data/raw/other"
-      fields: { }   # порожньо → крок validate позначає як skipped
+      fields:
+        device:
+          headers: ["device"]
+          check: nonempty
+          required: true
+        mac:
+          headers: ["mac"]
+          check: mac_or_literals
+          required: true
+        name:
+          headers: ["name"]
+          check: nonempty
+          required: true
+        ip:
+          headers: ["ip"]
+          check: ip_or_literals
+          required: true
