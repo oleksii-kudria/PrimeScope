@@ -70,6 +70,33 @@ python scripts/processor.py run [опції]
 ### Допустимі кроки
 `validate`, `collect`, `normalize`, `interim`, `checks`, `report`.
 
+## validate
+На початку кроку `validate` перевіряється наявність хоча б одного CSV-файла
+(окрім `*example.csv`) у директоріях `data/raw/siem`, `data/raw/dhcp`,
+`data/raw/ubiq`. Якщо в усіх трьох директоріях немає жодного такого файлу —
+крок завершується з помилкою, і наступні етапи не запускаються.
+
+Приклади логів:
+
+```text
+# Відсутні файли у всіх директоріях
+▶ step=validate status=start
+validate: no csv in: data/raw/siem
+validate: no csv in: data/raw/dhcp
+validate: no csv in: data/raw/ubiq
+validate: no required csv found across (siem, dhcp, ubiq): need at least one *.csv (excluding *example.csv)
+validate: errors summary: required_any_missing=1
+✖ step=validate status=fail duration=0.01s
+
+# Файли є хоча б в одній директорії
+▶ step=validate status=start
+validate: files in data/raw/siem: logs.csv
+validate: no csv in: data/raw/dhcp
+validate: no csv in: data/raw/ubiq
+validate: errors summary: files_with_confusables=0, files_with_content_errors=0, total_issues=0
+✓ step=validate status=done duration=0.01s
+```
+
 ## validate.rules
 У `configs/schemas.yml` перелічені правила для кроку `validate`. Кожне правило
 може мати параметр `allow_literals` — список значень, які приймаються без

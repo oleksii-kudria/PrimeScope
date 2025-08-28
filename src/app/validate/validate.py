@@ -191,26 +191,13 @@ def run(**kwargs) -> int:
             )
             return 1
 
-        normalize = _build_normalizer(settings.get("normalize_headers", {}))
         ignore_suffixes = settings.get("ignore_suffixes", ["example.csv"])
-        required_datasets = settings.get("required_datasets") or ["siem", "dhcp", "ubiq"]
+        require_any = settings.get("require_at_least_one_from") or ["siem", "dhcp", "ubiq"]
 
-        # prepare rules (compile regexes)
-        rules: dict[str, dict] = {}
-        for name, info in rules_cfg.items():
-            info = info or {}
-            if info.get("kind") == "regex":
-                pattern = info.get("pattern")
-                try:
-                    info["_compiled"] = re.compile(pattern) if pattern else None
-                except re.error:
-                    info["_compiled"] = None
-            rules[name] = info
-
-        # --- inventory ---
         dataset_files: dict[str, list[str]] = {}
-        missing_required: list[str] = []
-        for ds_name, ds in datasets_cfg.items():
+        total_csv = 0
+        for ds_name in require_any:
+            ds = datasets_cfg.get(ds_name) or {}
             rel = ds.get("dir")
             if not isinstance(rel, str):
                 continue
@@ -225,22 +212,51 @@ def run(**kwargs) -> int:
                     "validate: files in %s: %s", rel, ", ".join(sorted(names))
                 )
             else:
-                if ds_name in required_datasets:
-                    logger.error(
-                        "validate: required csv missing in %s (dataset=%s): need at least one *.csv (excluding *example.csv)",
-                        rel,
-                        ds_name,
-                    )
-                    missing_required.append(ds_name)
-                else:
-                    logger.info("validate: no csv in: %s", rel)
+                logger.info("validate: no csv in: %s", rel)
+            total_csv += len(files)
 
-        if missing_required:
+        if total_csv == 0:
             logger.error(
-                "validate: errors summary: required_dirs_missing=%d",
-                len(missing_required),
+                "validate: no required csv found across (%s): need at least one *.csv (excluding *example.csv)",
+                ", ".join(require_any),
             )
+            logger.error("validate: errors summary: required_any_missing=1")
             return 1
+
+        normalize = _build_normalizer(settings.get("normalize_headers", {}))
+
+        # prepare rules (compile regexes)
+        rules: dict[str, dict] = {}
+        for name, info in rules_cfg.items():
+            info = info or {}
+            if info.get("kind") == "regex":
+                pattern = info.get("pattern")
+                try:
+                    info["_compiled"] = re.compile(pattern) if pattern else None
+                except re.error:
+                    info["_compiled"] = None
+            rules[name] = info
+
+        # --- inventory ---
+        # dataset_files already contains entries for datasets from require_any.
+        for ds_name, ds in datasets_cfg.items():
+            if ds_name in dataset_files:
+                continue
+            rel = ds.get("dir")
+            if not isinstance(rel, str):
+                continue
+            dir_path = root / rel
+            files = list_csv_in_dir(
+                str(dir_path), ignore_suffixes=ignore_suffixes, recursive=False
+            )
+            dataset_files[ds_name] = files
+            if files:
+                names = [Path(p).name for p in files]
+                logger.info(
+                    "validate: files in %s: %s", rel, ", ".join(sorted(names))
+                )
+            else:
+                logger.info("validate: no csv in: %s", rel)
 
         missing_msgs: list[str] = []
         content_msgs: list[str] = []
