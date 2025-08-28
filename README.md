@@ -71,30 +71,25 @@ python scripts/processor.py run [опції]
 `validate`, `collect`, `normalize`, `interim`, `checks`, `report`.
 
 ## validate
+Ролі джерел задаються у `configs/schemas.yml` → `validate.settings.roles`.
 На початку кроку `validate` перевіряється наявність хоча б одного CSV-файла
-(окрім `*example.csv`) у директоріях `data/raw/siem`, `data/raw/dhcp`,
-`data/raw/ubiq`. Якщо в усіх трьох директоріях немає жодного такого файлу —
-крок завершується з помилкою, і наступні етапи не запускаються.
+(окрім `*example.csv`) серед **primary**-датасетів:
+`ubiq`, `dhcp`, `siem`, `owrt`. Якщо у всіх цих директоріях немає жодного
+придатного файлу — крок завершується з помилкою, і наступні етапи не
+запускаються. Джерела з роллю **secondary** (`arm`, `mkp`, `other`) можуть
+відсутні — це не помилка.
 
-Приклади логів:
+Приклад логів при відсутності CSV у всіх primary:
 
 ```text
-# Відсутні файли у всіх директоріях
 ▶ step=validate status=start
-validate: no csv in: data/raw/siem
-validate: no csv in: data/raw/dhcp
 validate: no csv in: data/raw/ubiq
-validate: no required csv found across (siem, dhcp, ubiq): need at least one *.csv (excluding *example.csv)
+validate: no csv in: data/raw/dhcp
+validate: no csv in: data/raw/siem
+validate: no csv in: data/raw/owrt
+validate: no required csv found across primary datasets (ubiq, dhcp, siem, owrt): need at least one *.csv (excluding *example.csv)
 validate: errors summary: required_any_missing=1
 ✖ step=validate status=fail duration=0.01s
-
-# Файли є хоча б в одній директорії
-▶ step=validate status=start
-validate: files in data/raw/siem: logs.csv
-validate: no csv in: data/raw/dhcp
-validate: no csv in: data/raw/ubiq
-validate: errors summary: files_with_confusables=0, files_with_content_errors=0, total_issues=0
-✓ step=validate status=done duration=0.01s
 ```
 
 ## validate.rules
