@@ -1,9 +1,11 @@
 validate:
   # Загальні правила для парсингу заголовків і файлів
   settings:
+    roles:
+      primary: ["ubiq", "dhcp", "siem", "owrt"]
+      secondary: ["arm", "mkp", "other"]
     file_glob: "*.csv"                # маска файлів у каталозі
     ignore_suffixes: ["example.csv"]  # ігнорувати файли, що закінчуються на example.csv
-    require_at_least_one_from: ["siem", "dhcp", "ubiq"]  # потрібно хоча б одне джерело
     normalize_headers:                # як зрівнювати заголовки
       casefold: true                  # нечутливість до регістру
       trim: true                      # обрізати пробіли по краях
@@ -58,6 +60,38 @@ validate:
 
   # Опис датасетів: прив'язка до директорій і полів
   datasets:
+
+    ubiq:
+      dir: "data/raw/ubiq"
+      fields: { }   # порожньо → skipped
+
+    dhcp:
+      dir: "data/raw/dhcp"
+      fields: { }   # порожньо → skipped
+
+    siem:
+      dir: "data/raw/siem"
+      fields:
+        logSourceIdentifier:
+          headers: ["logSourceIdentifier"]
+          check: ip
+          required: true
+        sourcMACAddress:
+          headers: ["sourcMACAddress"]
+          check: mac
+          required: true
+        payloadAsUTF:
+          headers: ["payloadAsUTF"]
+          check: nonempty
+          required: true
+        deviceTime:
+          headers: ["deviceTime"]
+          check: nonempty
+          required: true
+
+    owrt:
+      dir: "data/raw/owrt"
+      fields: { }   # порожньо → skipped
 
     arm:
       dir: "data/raw/arm"
@@ -123,35 +157,7 @@ validate:
           check: ip_or_literals
           required: false  # якщо в MKP IP не завжди є — залишити false
 
-    siem:
-      dir: "data/raw/siem"
-      fields:
-        logSourceIdentifier:
-          headers: ["logSourceIdentifier"]
-          check: ip
-          required: true
-        sourcMACAddress:
-          headers: ["sourcMACAddress"]
-          check: mac
-          required: true
-        payloadAsUTF:
-          headers: ["payloadAsUTF"]
-          check: nonempty
-          required: true
-        deviceTime:
-          headers: ["deviceTime"]
-          check: nonempty
-          required: true
-
     # Поки що для цих директорій schema відсутня — validate має їх пропускати
     other:
       dir: "data/raw/other"
       fields: { }   # порожньо → крок validate позначає як skipped
-
-    ubiq:
-      dir: "data/raw/ubiq"
-      fields: { }   # порожньо → skipped
-
-    dhcp:
-      dir: "data/raw/dhcp"
-      fields: { }   # порожньо → skipped

@@ -197,15 +197,18 @@ def run(**kwargs) -> tuple[int, dict | None]:
             return 1, None
 
         ignore_suffixes = settings.get("ignore_suffixes", ["example.csv"])
-        require_any = settings.get("require_at_least_one_from") or ["siem", "dhcp", "ubiq"]
+        roles_cfg = settings.get("roles") or {}
+        primary = roles_cfg.get("primary") or []
+        secondary = roles_cfg.get("secondary") or []
 
         dataset_files: dict[str, list[str]] = {}
-        total_csv = 0
-        for ds_name in require_any:
+
+        def _inventory(ds_name: str) -> list[str]:
             ds = datasets_cfg.get(ds_name) or {}
             rel = ds.get("dir")
             if not isinstance(rel, str):
-                continue
+                dataset_files[ds_name] = []
+                return []
             dir_path = root / rel
             files = list_csv_in_dir(
                 str(dir_path), ignore_suffixes=ignore_suffixes, recursive=False
@@ -218,12 +221,19 @@ def run(**kwargs) -> tuple[int, dict | None]:
                 )
             else:
                 logger.info("validate: no csv in: %s", rel)
-            total_csv += len(files)
+            return files
 
-        if total_csv == 0:
+        total_primary_csv = 0
+        for name in primary:
+            total_primary_csv += len(_inventory(name))
+
+        for name in secondary:
+            _inventory(name)
+
+        if total_primary_csv == 0:
             logger.error(
-                "validate: no required csv found across (%s): need at least one *.csv (excluding *example.csv)",
-                ", ".join(require_any),
+                "validate: no required csv found across primary datasets (%s): need at least one *.csv (excluding *example.csv)",
+                ", ".join(primary),
             )
             logger.error("validate: errors summary: required_any_missing=1")
             return 1, None
@@ -243,7 +253,7 @@ def run(**kwargs) -> tuple[int, dict | None]:
             rules[name] = info
 
         # --- inventory ---
-        # dataset_files already contains entries for datasets from require_any.
+        # dataset_files already contains entries for datasets from roles.primary and roles.secondary.
         for ds_name, ds in datasets_cfg.items():
             if ds_name in dataset_files:
                 continue
