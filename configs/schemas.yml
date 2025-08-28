@@ -3,6 +3,7 @@ validate:
   settings:
     file_glob: "*.csv"                # маска файлів у каталозі
     ignore_suffixes: ["example.csv"]  # ігнорувати файли, що закінчуються на example.csv
+    required_datasets: ["siem", "dhcp", "ubiq"]  # обов'язкові джерела для інвентаризації
     normalize_headers:                # як зрівнювати заголовки
       casefold: true                  # нечутливість до регістру
       trim: true                      # обрізати пробіли по краях
