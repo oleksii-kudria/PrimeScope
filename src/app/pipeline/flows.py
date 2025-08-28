@@ -1,7 +1,7 @@
 """Definitions of processing flows for PrimeScope."""
 
-# Default pipeline sequence.
-DEFAULT_FLOW = [
+# Canonical list of processing steps used across the project.
+STEPS = [
     "validate",
     "collect",
     "normalize",
@@ -9,6 +9,9 @@ DEFAULT_FLOW = [
     "checks",
     "report",
 ]
+
+# Default pipeline sequence simply includes all known steps.
+DEFAULT_FLOW = list(STEPS)
 
 # Placeholder for future custom flows.
 EXAMPLE_FLOW = DEFAULT_FLOW
