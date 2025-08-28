@@ -25,13 +25,19 @@ logger = get_logger(__name__)
 
 def run_flow(*, flow: list[str], **kwargs) -> int:
     """Execute the given flow of pipeline steps."""
+    manifest = None
     for step in flow:
         start = time.perf_counter()
         logger.info("▶ step=%s status=start", step)
         try:
             module = importlib.import_module(MODULES[step])
             try:
-                code = module.run(**kwargs)
+                if step == "validate":
+                    code, manifest = module.run(**kwargs)
+                elif step == "collect" and manifest is not None:
+                    code = module.run(validated_manifest=manifest, **kwargs)
+                else:
+                    code = module.run(**kwargs)
             except NotImplementedError:
                 code = SKIPPED
             except Exception:

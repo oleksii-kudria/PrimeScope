@@ -5,6 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 import ipaddress
 import re
+import json
+import hashlib
+from datetime import datetime
 
 from app.pipeline.status import DONE
 from app.utils.logging import get_logger
@@ -161,7 +164,7 @@ def _apply_rule(
     return None
 
 
-def run(**kwargs) -> int:
+def run(**kwargs) -> tuple[int, dict | None]:
     """Run the validate step."""
 
     try:
@@ -169,7 +172,7 @@ def run(**kwargs) -> int:
         config_path = root / "configs" / "schemas.yml"
         if not config_path.exists():
             logger.error("validate: відсутній configs/schemas.yml")
-            return 1
+            return 1, None
 
         text = config_path.read_text(encoding="utf-8")
         try:  # prefer PyYAML when available
@@ -184,12 +187,14 @@ def run(**kwargs) -> int:
         datasets_cfg = validate_cfg.get("datasets") or {}
         confusables_map = validate_cfg.get("confusables_map") or {}
         detect_confusables = settings.get("detect_confusables", False)
+        fp_source = json.dumps({"settings": settings, "rules": rules_cfg}, sort_keys=True)
+        settings_fingerprint = hashlib.sha256(fp_source.encode("utf-8")).hexdigest()
 
         if not datasets_cfg:
             logger.error(
                 "validate: відсутній блок validate.datasets у configs/schemas.yml"
             )
-            return 1
+            return 1, None
 
         ignore_suffixes = settings.get("ignore_suffixes", ["example.csv"])
         require_any = settings.get("require_at_least_one_from") or ["siem", "dhcp", "ubiq"]
@@ -221,7 +226,7 @@ def run(**kwargs) -> int:
                 ", ".join(require_any),
             )
             logger.error("validate: errors summary: required_any_missing=1")
-            return 1
+            return 1, None
 
         normalize = _build_normalizer(settings.get("normalize_headers", {}))
 
@@ -258,6 +263,7 @@ def run(**kwargs) -> int:
             else:
                 logger.info("validate: no csv in: %s", rel)
 
+        manifest_datasets: dict[str, dict] = {}
         missing_msgs: list[str] = []
         content_msgs: list[str] = []
         confusable_msgs: list[str] = []
@@ -267,6 +273,12 @@ def run(**kwargs) -> int:
 
         for ds_name, ds in datasets_cfg.items():
             fields_cfg = ds.get("fields") or {}
+            ds_entry = {
+                "dir": ds.get("dir"),
+                "status": "skipped" if not fields_cfg else "empty",
+                "files": [],
+            }
+            manifest_datasets[ds_name] = ds_entry
             if not fields_cfg:
                 logger.info("validate: skipped dataset %s: no schema", ds_name)
                 continue
@@ -357,8 +369,29 @@ def run(**kwargs) -> int:
                                 content_msgs.append(msg)
                                 files_with_content.add(rel_path)
 
-                if not file_has_error:
+                if not missing_fields and not file_has_error:
                     logger.info("validate: content ok: %s", rel_path)
+                    stat = Path(path).stat()
+                    headers_map = {
+                        canon: hdr for canon, (hdr, _) in found.items()
+                    }
+                    ds_entry["files"].append(
+                        {
+                            "path": rel_path,
+                            "fingerprint": {
+                                "size": stat.st_size,
+                                "mtime": int(stat.st_mtime),
+                            },
+                            "headers_map": headers_map,
+                            "columns_present": list(found.keys()),
+                            "columns_missing": [
+                                c for c in field_defs.keys() if c not in found
+                            ],
+                        }
+                    )
+
+            if ds_entry["files"]:
+                ds_entry["status"] = "ok"
 
         total_issues = len(missing_msgs) + len(content_msgs)
         logger.info(
@@ -373,9 +406,49 @@ def run(**kwargs) -> int:
             settings.get("stop_on_missing_required", True) and missing_msgs
         ) or (settings.get("stop_on_content_error", True) and content_msgs):
             exit_code = 1
-        return exit_code
+
+        manifest: dict | None = None
+        if exit_code == DONE:
+            run_id = datetime.utcnow().strftime("%Y%m%dT%H%M%S")
+            schemas_hash = hashlib.sha256(config_path.read_bytes()).hexdigest()
+            manifest = {
+                "run_id": run_id,
+                "schemas_hash": schemas_hash,
+                "settings_fingerprint": settings_fingerprint,
+                "datasets": manifest_datasets,
+            }
+
+            manifest_dir = root / ".pscope" / "validate"
+            manifest_dir.mkdir(parents=True, exist_ok=True)
+            manifest_path = manifest_dir / f"{run_id}.json"
+            tmp_path = manifest_path.with_suffix(".json.tmp")
+            text = json.dumps(manifest, ensure_ascii=False, indent=2)
+            tmp_path.write_text(text, encoding="utf-8")
+            tmp_path.replace(manifest_path)
+
+            latest_path = root / ".pscope" / "latest.json"
+            tmp_latest = latest_path.with_suffix(".tmp")
+            tmp_latest.write_text(text, encoding="utf-8")
+            tmp_latest.replace(latest_path)
+            logger.info(
+                "validate: manifest saved to %s", str(manifest_path.relative_to(root))
+            )
+            logger.info(
+                "validate: latest -> %s", str(manifest_path.relative_to(root))
+            )
+
+            # cleanup old manifests
+            keep = 20
+            files = sorted(manifest_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+            for old in files[keep:]:
+                try:
+                    old.unlink()
+                except Exception:
+                    pass
+
+        return exit_code, manifest
 
     except Exception as exc:  # pragma: no cover - minimal error handling
         logger.error("validate: unexpected error: %s", exc)
-        return 1
+        return 1, None
 
