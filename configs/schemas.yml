@@ -72,19 +72,19 @@ validate:
     siem:
       dir: "data/raw/siem"
       fields:
-        logSourceIdentifier:
+        source:
           headers: ["logSourceIdentifier"]
           check: ip
           required: true
-        sourcMACAddress:
+        mac:
           headers: ["sourcMACAddress"]
           check: mac
           required: true
-        payloadAsUTF:
+        payload:
           headers: ["payloadAsUTF"]
           check: nonempty
           required: true
-        deviceTime:
+        date:
           headers: ["deviceTime"]
           check: nonempty
           required: true
